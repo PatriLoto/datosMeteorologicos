@@ -1,5 +1,4 @@
-df <- scale(mtcars)
-heatmap(x, scale = "row")
+
 library(tidyverse)
 library(highcharter)
 library(lubridate)
@@ -358,7 +357,8 @@ datosMeteoCorrientes<-separoFechasMeteo %>% filter(id_estacion==10470)
 # filtro por la estacion de corrientes y los valores distintos a nulos
 corrientes <- meteo%>%filter(id_estacion==10470 & !is.na(t_max) & !is.na(t_min))%>% View()
 
-
+df <- scale(mtcars)
+heatmap(x, scale = "row")
 #----------------------------------------------------------------------
 https://bookdown.org/content/2274/series-temporales.html
 #series de tiempo
