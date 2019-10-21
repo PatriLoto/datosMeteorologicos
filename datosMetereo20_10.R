@@ -31,8 +31,8 @@ estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
 mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico)
 View(mapaA2011)
 
- heatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(fechaGrafico))%>% summarize (prom=mean(t_max))%>% group_by_(year(fechaGrafico), month(fechaGrafico))
-heatmap
+ heatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(fechaGrafico))%>% summarize (prom=mean(t_max))%>% group_by_(month(fechaGrafico))
+ heatmap
 
 heatmap(mapaA2011$t_max, scale = "row")
 
