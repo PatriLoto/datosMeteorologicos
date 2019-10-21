@@ -12,7 +12,7 @@ View(estaciones)
 
 meteo <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-10-09/meteo.csv", na = "-99.9")
 View(meteo)
-
+#--------------------------------------------------
 porAnio <-meteo%>% mutate(anio=year(fecha))%>%View
 
 
@@ -28,8 +28,14 @@ View(estaciones_meteo2)
 estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
 
 #selecciono datos de Argentina del año 2011
-mapaA2011 <- estaciones_meteo2%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico)
-mapaA2011
+mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico)
+View(mapaA2011)
+
+ heatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(fechaGrafico))%>% summarize (prom=mean(tmax))%>% group_by_(year(fechaGrafico), month(fechaGrafico))
+heatmap
+
+heatmap(mapaA2011$t_max, scale = "row")
+
 # mapa de todos los países de todos los años
 mapa <- estaciones_meteo2%>%select (everything(), -nombre, -provincia)
 
@@ -218,75 +224,8 @@ ggsave("map_anomMIn.png",width = 10, height = 5, dpi = "retina")
 pMin <-ggplotly(map_anomMIn)
 pMin
 
-#-----------------------------------------------------------------------------------
-## grafico temperaturas maximas accesible PARA PUBLICAR
-map_mAXAccesible <- mapaA2012 %>% 
-  ggplot(aes(lon, lat)) +
-  geom_sf(data = map, inherit.aes = FALSE) +
-  coord_sf(ylim = c(-39, -18), xlim = c(-72, -50)) +
-  geom_point(aes(fill = mapaA2012$t_max), shape = 21,  size=3)+
-  # scale_fill_divergent("Temperatura máximas") +
-  scale_fill_gradient2("Temperatura máximas (C°)", limits = c(0, 50),
-                     #rojo  low = "#1B7837", mid = "white", high = "#B10026")+
-  low = "#FFFFCC", mid = "#FEB24C", high = "#B10026")+
-  #  low = "#1B7837", mid = "white", high = "#762A83")
-  scale_size_area(max_size = 4, guide = "none") +
-  labs(title = "Temperaturas máximas", subtitle= "Para el período: 01/2011-31/2012", x = "longitud", y = "Latitud") +
-  theme(legend.position = "right",                
-        legend.text = element_text(colour ="#446455" , size = 8),
-        legend.title = element_text(colour = "#446455", size = 10),   #lila oscuro de RLadies="#446455"
-        legend.title.align = 1,
-        legend.background = element_rect(fill = "#efe9cc", colour ="#efe9cc"),  
-        panel.background = element_rect(fill = "#efe9cc", colour = "#efe9cc"),    
-        plot.title = element_text(colour ="#e26241" , size = 22, hjust = 0.5, family = "FuturaBT-ExtraBlack", face="bold"),	
-        
-        plot.subtitle = element_text(colour = "#446455", size = 14, hjust = 0.5,family = "FuturaBT-ExtraBlack", face="italic"),
-        plot.caption = element_text(colour =  wes_palette("GrandBudapest1")[2], size = 10, hjust = 0.5,face="bold", vjust=1))
 
 
-map_mAXAccesible
-ggsave("map_mAXAccesible.png",width = 10, height = 5, dpi = "retina")
-#plotly
-hover <- with(mapaA2012, paste(t_max, '<br>', "Temp. Máx", media, "Media", "<br>"))
-# light grey boundaries
-l <- list(color = toRGB("grey"), width = 0.5)
-pMax2<-ggplotly(map_mAXAccesible, hoverformat='2.F', tooltip = "text")
-pMax
-pMax <-ggplotly(map_anom)%>%
-  add_trace(text = ~hover)+l
-pMax
-
-
-
-#----------------------------------------------------------------------
-#temp. mínimas accesible #grafico temperaturas minimas coloresAZULES
-map_anomMInAccesible <- mapaA2012 %>% 
-  ggplot(aes(lon, lat)) +
-  geom_sf(data = map, inherit.aes = FALSE) +
-  coord_sf(ylim = c(-39, -18), xlim = c(-72, -50)) +
-  geom_point(aes(fill = t_min), shape = 23, size=3) +
-  scale_fill_continuous ("Temperatura mínimas", limits = c(-5, 22),
-                      low = "#40bfc1",mid="#41B6C4", high = "#253494")+
-  #low ="#darkblue", mid ="lightblue", high ="1B7837")+
-  scale_size_area(max_size = 4, guide = "none") +
-  labs(title = "Temperaturas Mínimas", x = "longitud", y = "Latitud") +
-  theme(legend.position = "right",                
-        legend.text = element_text(colour ="#446455" , size = 8),
-        legend.title = element_text(colour = "#446455", size = 10),  
-        legend.title.align = 1,
-        legend.background = element_rect(fill = wes_palette("Darjeeling2")[4], colour =NA),  
-        panel.background = element_rect(fill = wes_palette("Darjeeling2")[4], colour = wes_palette("Darjeeling2")[4]),    
-        plot.title = element_text(colour ="#2f416d" , size = 22, hjust = 0.5, family = "FuturaBT-ExtraBlack", face="bold"),	
-        plot.subtitle = element_text(colour = "blue", size = 14, hjust = 0.5,family = "FuturaBT-ExtraBlack", face="italic"),
-        plot.caption = element_text(colour =  wes_palette("GrandBudapest1")[2], size = 10, hjust = 0.5,face="bold", vjust=1))
-
-
-map_anomMInAccesible
-ggsave("map_anomMInacce.png",width = 10, height = 5, dpi = "retina")
-#+
-# transition_time(fecha)
-pMin <-ggplotly(map_anomMInAccesible)
-pMin
 #otras paletas
 #paletas accesibles
 library(RColorBrewer)
@@ -328,6 +267,7 @@ plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12)
 
 #--------------------------------------------------------
 heatmap(mapaA2011)
+heatmap(mapaA2011, scale = "none")
 mapaA2011
 
 
