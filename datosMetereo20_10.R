@@ -410,9 +410,11 @@ hc
 x <- c("T.Min", "T.Media", "T.Max", "ciudad")
 y <- sprintf("{point.%s}", c("lower", "median", "upper","nombre"))
 tltip <- tooltip_table(x, y)
-hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)
+hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% filter(nombre!= Corrientes)
+View(hchartdatos)
 
-p <-hchart(hchartdatos, type = "columnrange",
+
+hchart(hchartdatos, type = "columnrange",
        hcaes(x = fechaGrafico, low = t_min, high = t_max, color = media)) %>% 
   hc_yAxis(tickPositions = c(-2, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
            gridLineColor = "maroon",               #B71C1C
@@ -422,8 +424,9 @@ p <-hchart(hchartdatos, type = "columnrange",
     headerFormat = as.character(tags$small("{point.x: %Y %b}")),
     pointFormat = tltip
   ) %>% 
-  hc_add_theme(hc_theme_db()) + hc_title(text = "Temperaturas max. y mínimas") %>% 
-  hc_subtitle(text = "para el período") 
+  hc_add_theme(hc_theme_db())
+#+ hc_title(text = "Temperaturas max. y mínimas") %>% 
+ # hc_subtitle(text = "para el período") 
 
 
 
