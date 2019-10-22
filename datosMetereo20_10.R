@@ -28,11 +28,12 @@ View(estaciones_meteo2)
 estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
 
 #selecciono datos de Argentina del año 2011
-mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico)
+mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico, nombre)
 View(mapaA2011)
 
- heatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(mapaA2011$fechaGrafico))%>% summarize (prom=mean(t_max))%>% group_by_(month(mapaA2011$fechaGrafico))
- heatmap
+Paraheatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(mapaA2011$fechaGrafico))
+View(Paraheatmap)
+Paraheatmap2 <- Paraheatmap %>% summarize(prom=mean(t_max))%>% group_by(Paraheatmap$mes)
 
 heatmap(mapaA2011$t_max, scale = "row")
 
@@ -235,7 +236,7 @@ display.brewer.pal(n = 9, name = 'YlGnBu')
 brewer.pal(n = 8, name = "YlOrRd")
 brewer.pal(n = 9, name = "YlGnBu")
 
-pal <- colorBin("YlOrRd", domain = mapaA2012$t_max)
+pal <- colorBin("YlOrRd", domain = mapaA2011$t_max)
 colfunc <- colorRampPalette(c("salmon", "orange", "red"))
 #solo otro estilo para plotly
 # geo styling
@@ -373,11 +374,11 @@ datosMeteoCorrientes<-separoFechasMeteo %>% filter(id_estacion==10470)
 #la estación 10470 corresponde a Corrientes
 # filtro por la estacion de corrientes y los valores distintos a nulos
 corrientes <- meteo%>%filter(id_estacion==10470 & !is.na(t_max) & !is.na(t_min))%>% View()
-
-df <- scale(mtcars)
-heatmap(x, scale = "row")
+dfprueba <- mapaA2011 %>% select(t_max, t_min)
+dfprueba <- scale(dfprueba)
+heatmap(dfprueba, scale = "colum")
 #----------------------------------------------------------------------
-https://bookdown.org/content/2274/series-temporales.html
+#https://bookdown.org/content/2274/series-temporales.html
 #series de tiempo
 tsserie <- corrientes %>%select(precipitacion, t_max, t_min)
 View(tsserie)
@@ -406,21 +407,24 @@ hc
 
 
 
-x <- c("Min", "Median", "Max")
-y <- sprintf("{point.%s}", c("lower", "median", "upper"))
+x <- c("T.Min", "T.Media", "T.Max", "ciudad")
+y <- sprintf("{point.%s}", c("lower", "median", "upper","nombre"))
 tltip <- tooltip_table(x, y)
+hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)
 
-hchart(tsSerie.modelo, type = "columnrange",
-       hcaes(x = fecha, low = t_min, high = t_max, color = precipitacion)) %>% 
+p <-hchart(hchartdatos, type = "columnrange",
+       hcaes(x = fechaGrafico, low = t_min, high = t_max, color = media)) %>% 
   hc_yAxis(tickPositions = c(-2, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
-           gridLineColor = "#B71C1C",
+           gridLineColor = "maroon",               #B71C1C
            labels = list(format = "{value} C", useHTML = TRUE)) %>% 
   hc_tooltip(
     useHTML = TRUE,
     headerFormat = as.character(tags$small("{point.x: %Y %b}")),
     pointFormat = tltip
   ) %>% 
-  hc_add_theme(hc_theme_db())
+  hc_add_theme(hc_theme_db()) + hc_title(text = "Temperaturas max. y mínimas") %>% 
+  hc_subtitle(text = "para el período") 
+
 
 
 
