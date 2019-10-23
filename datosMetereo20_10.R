@@ -405,30 +405,41 @@ hc
 
 
 
+#x <- c("T.Min", "T.Media", "T.Max", "ciudad")
 
-
-x <- c("T.Min", "T.Media", "T.Max", "ciudad")
-y <- sprintf("{point.%s}", c("lower", "median", "upper","nombre"))
-tltip <- tooltip_table(x, y)
-hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% filter(nombre!= Corrientes)
+#Datos
+hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
 View(hchartdatos)
 
+#highcharter
+x <- c("Día","T.Min.", "T.Media", "T.Máx.")
+y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
+tltip <- tooltip_table(x, y)
 
-hchart(hchartdatos, type = "columnrange",
-       hcaes(x = fechaGrafico, low = t_min, high = t_max, color = media)) %>% 
-  hc_yAxis(tickPositions = c(-2, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
-           gridLineColor = "maroon",               #B71C1C
-           labels = list(format = "{value} C", useHTML = TRUE)) %>% 
+
+grafico <-hchart(hchartdatos, type = "columnrange",
+       hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
+  hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
+           #gridLineColor = "orange",               #B71C1C
+           labels = list(format = "{value} Cº", useHTML = TRUE)) %>% 
   hc_tooltip(
     useHTML = TRUE,
     headerFormat = as.character(tags$small("{point.x: %Y %b}")),
     pointFormat = tltip
   ) %>% 
-  hc_add_theme(hc_theme_db())
-#+ hc_title(text = "Temperaturas max. y mínimas") %>% 
- # hc_subtitle(text = "para el período") 
+  hc_add_theme(hc_theme_ffx())
+ # hc_add_theme(hc_theme_monokai())
 
+#hc_theme_monokai()
+#hc_theme_ffx
+grafico %>% hc_title(text = "Temperaturas máxima y mínima de la ciudad de Corrientes") %>% 
+ hc_subtitle(text = "para el período  comprendido entre el 01/01/2011 y el 01/01/2012n \\n Fuente: Claris LPB \\n 
+ Los datos fueron obtenidos por la estación meteorológica: Corrientes Aero ubicada según coordenadas: -27.45 (lat) y
+-58.76667 (long)")
+            
+    ##\\n Vizualización para DatosdeMiercoles por Patricia Loto utilizando highcharter" )
 
+#####################################################################
 
 
 df <- scale(mtcars)
