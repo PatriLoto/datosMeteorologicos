@@ -1,3 +1,8 @@
+library(tidyverse)
+library(highcharter)
+library(lubridate)
+
+
 #Datos
 hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
 View(hchartdatos)
@@ -49,9 +54,9 @@ grafico2 %>% hc_title(text = "Temperaturas máxima y mínima de la ciudad de Cor
   hc_subtitle(text = "La temperatura mínima con -0.4 Cº se registró el 27 de junio, mientras que la máxima con 40.7 Cº se registró el 22 de diciembre. <br /> <br /> Fuente: Claris LPB.")
 
 
-#--------------------------------------------------------------------------------
+#--------------------------
 #opción 3: theme flatdark
-#-------------------
+#--------------------------
 #highcharter
 x <- c("Día","T.Min.", "T.Media", "T.Máx.")
 y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
