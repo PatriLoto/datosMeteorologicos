@@ -131,6 +131,8 @@ map_anomMInAccesible <- mapaA2012 %>%
 map_anomMInAccesible
 ggsave("map_anomMInacce.png",width = 10, height = 5, dpi = "retina")
 
+# Para unir dos gràficos utilizo el paquete cowplot
+#ejemplo
 library(cowplot)
 p1 <- ggplot(mtcars, aes(disp, mpg)) + 
   geom_point()
@@ -238,41 +240,16 @@ brewer.pal(n = 9, name = "YlGnBu")
 
 pal <- colorBin("YlOrRd", domain = mapaA2011$t_max)
 colfunc <- colorRampPalette(c("salmon", "orange", "red"))
-#solo otro estilo para plotly
-# geo styling
-estilo2 <- list(
-  scope = 'usa',
-  projection = list(type = 'albers usa'),
-  showland = TRUE,
-  landcolor = toRGB("gray95"),
-  subunitcolor = toRGB("gray85"),
-  countrycolor = toRGB("gray85"),
-  countrywidth = 0.5,
-  subunitwidth = 0.5
-)
+
 pMax <-ggplotly(map_anom)%>%
   add_trace(text = ~hover)+estilo2
 pMax
-
-#----------------------------------------------------
-# Para unir dos gràficos utilizo el paquete cowplot
-#ejemplo
-library(cowplot)
-p1 <- ggplot(mtcars, aes(disp, mpg)) + 
-  geom_point()
-p2 <- ggplot(mtcars, aes(qsec, mpg)) +
-  geom_point()
-
-plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12)
 
 
 #--------------------------------------------------------
 heatmap(mapaA2011)
 heatmap(mapaA2011, scale = "none")
-mapaA2011
-
-
-
+mapaA20
 
 # 3er intento
 df <- subset(mapaA2012, month(fechaGrafico) %in% 6:12)
@@ -402,73 +379,6 @@ hc <- highchart(type = "stock") %>%
  # hc_add_series(t_min, id = "eurkpw")
 
 hc
-
-
-
-#x <- c("T.Min", "T.Media", "T.Max", "ciudad")
-
-#Datos
-hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
-View(hchartdatos)
-
-#highcharter
-x <- c("Día","T.Min.", "T.Media", "T.Máx.")
-y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
-tltip <- tooltip_table(x, y)
-
-# opción 1: theme ffx
-grafico <-hchart(hchartdatos, type = "columnrange",
-       hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
-  hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
-           #gridLineColor = "orange",               #B71C1C
-           labels = list(format = "{value} Cº", useHTML = TRUE)) %>% 
-  hc_tooltip(
-    useHTML = TRUE,
-    headerFormat = as.character(tags$small("{point.x: %Y %b}")),
-    pointFormat = tltip
-  ) %>% 
-  hc_add_theme(hc_theme_ffx())
- # hc_add_theme(hc_theme_monokai())
-
-grafico %>% hc_title(text = "Temperaturas máxima y mínima de la ciudad de Corrientes <br /> <br /> Para el período  comprendido entre el 01/01/2011 y el 01/01/2012.") %>% 
- hc_subtitle(text = "La temperatura mínima con -0.4 Cº se registró el 27 de junio, mientras que la máxima con 40.7 Cº se registró el 22 de diciembre. <br /> <br /> Fuente: Claris LPB.")
-     
-#-----------------------------------------------------------------------
-#opción 2: theme monokai
-#-------------------
-#highcharter
-x <- c("Día","T.Min.", "T.Media", "T.Máx.")
-y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
-tltip <- tooltip_table(x, y)
-
-
-grafico3 <-hchart(hchartdatos, type = "columnrange",
-                 hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
-  hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0),
-           gridLineColor = "orange",               #B71C1C
-           labels = list(format = "{value} Cº", useHTML = TRUE)) %>% 
-  hc_tooltip(
-    useHTML = TRUE,
-    headerFormat = as.character(tags$small("{point.x: %Y %b}")),
-    pointFormat = tltip
-  ) %>% 
-  hc_add_theme(hc_theme_flatdark())
-
-grafico3 %>% hc_title(text = "Temperaturas máxima y mínima de la ciudad de Corrientes <br /> <br /> Para el período  comprendido entre el 01/01/2011 y el 01/01/2012.") %>% 
-  hc_subtitle(text = "La temperatura mínima con -0.4 Cº se registró el 27 de junio, mientras que la máxima con 40.7 Cº se registró el 22 de diciembre. <br /> <br /> Fuente: Claris LPB.")
-#hc_theme_flatdark
-#hc_theme_monokai
-
-#--------------------------------------------------------------------------------
-
-
-
        
-    ##Los datos meteorólogicos de la ciudad de Corrientes Capital son recolectados de manera diaria por la estación meteorológica Corrientes Aero ubicada en la latitud -27.45 y
-#en la longitud -58.76667.<br /> <br />\\n Vizualización para DatosdeMiercoles por Patricia Loto utilizando highcharter" )
-
+  
 #####################################################################
-
-
-df <- scale(mtcars)
-heatmap(x, scale = "row")
