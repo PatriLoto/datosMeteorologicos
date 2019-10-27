@@ -1,16 +1,35 @@
-#Librerías cargadas
+# Librerías utilizadas
 library(tidyverse)
 library(highcharter)
 library(lubridate)
 
 # Lectura de datos
-#cada estación corresponde a un lugar geográfico
+#----------------------------
+#datos de cada estación meteorológica: id, long, lat, nombre, ciudad, país, etc. Cada estación corresponde a un lugar geográfico.
 estaciones <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-10-09/estaciones.csv")
 locale = readr::locale(encoding = "latin1")
 View(estaciones)
-
+#datos meteorologicos de cada estación:t_min, t_max, precipitación,etc.
 meteo <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-10-09/meteo.csv", na = "-99.9")
 View(meteo)
+
+#----------------------------
+# Procesamiento de datos
+#----------------------------
+# uno la tabla meteo con estacion mediane el id_estacion
+estaciones_meteo <-meteo %>% inner_join(estaciones, by= 'id_estacion')
+View(estaciones_meteo)
+
+estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>%
+  mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
+  rename(fechaGrafico = fecha)
+View(estaciones_meteo2)
+#elimino nulos
+estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
+
+#selecciono datos de Argentina del año 2011
+mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico, nombre)
+View(mapaA2011)
 
 #Datos
 hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
