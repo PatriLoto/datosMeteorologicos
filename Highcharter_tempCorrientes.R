@@ -1,7 +1,16 @@
+#Librerías cargadas
 library(tidyverse)
 library(highcharter)
 library(lubridate)
 
+# Lectura de datos
+#cada estación corresponde a un lugar geográfico
+estaciones <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-10-09/estaciones.csv")
+locale = readr::locale(encoding = "latin1")
+View(estaciones)
+
+meteo <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-10-09/meteo.csv", na = "-99.9")
+View(meteo)
 
 #Datos
 hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
