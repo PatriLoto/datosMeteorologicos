@@ -17,26 +17,23 @@ View(meteo)
 # Procesamiento de datos
 #----------------------------
 # uno la tabla meteo con estacion mediane el id_estacion
-estaciones_meteo <-meteo %>% inner_join(estaciones, by= 'id_estacion')
-View(estaciones_meteo)
+estaciones_meteo <-meteo %>% inner_join(estaciones, by= 'id_estacion')%>%View()
+#View(estaciones_meteo)
 
-estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>% filter(pais=='Argentina')%>%
+estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>% filter((pais=='Argentina') & !is.na(t_max) & !is.na(t_min))%>%
   mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
   rename(Fecha = fecha)
 View(estaciones_meteo2)
 
 #selecciono datos de Corrientes Capital
-datosCorrientes<- estaciones_meteo2%>% filter((year(Fecha)== 2011) & (nombre=='CORRIENTES AERO') & !is.na(t_max) & !is.na(t_min))%>%
-                mutate(dia=day(Fecha))%>% select(lat, lon,t_max, t_min, media, Fecha,dia, nombre)
+datosCorrientes<- estaciones_meteo2%>% filter((year(Fecha)== 2011) & (nombre=='CORRIENTES AERO'))%>%
+                mutate(dia=day(Fecha))%>% select(t_max, t_min, media, Fecha,dia, nombre)
 View(datosCorrientes)
 
 #temp. mínima y máxima para definir valores del eje y
 extremoInferior <- min(datosCorrientes$t_min)   # -0.4
 extremoSuperior <- max(datosCorrientes$t_max)   # 40.7
 
-#Datos
-#hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, Fecha, nombre)%>% mutate(dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
-#View(hchartdatos)
 
 #highcharter
 x <- c("Día","T.Min.", "T.Media", "T.Máx.")
