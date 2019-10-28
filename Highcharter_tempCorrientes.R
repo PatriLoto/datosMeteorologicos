@@ -20,19 +20,19 @@ View(meteo)
 estaciones_meteo <-meteo %>% inner_join(estaciones, by= 'id_estacion')
 View(estaciones_meteo)
 
-estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>%
+estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>% filter(pais=='Argentina')%>%
   mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
-  rename(fechaGrafico = fecha)
+  rename(Fecha = fecha)
 View(estaciones_meteo2)
 #elimino nulos
-estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
+#estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))  #filter(pais=='Argentina')
 
 #selecciono datos de Argentina del año 2011
-mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico, nombre)
+mapaA2011 <- estaciones_meteo2%>% filter((year(Fecha)== 2011) & !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, Fecha, nombre)
 View(mapaA2011)
 
 #Datos
-hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, fechaGrafico, nombre)%>% mutate(Fecha=fechaGrafico, dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
+hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, Fecha, nombre)%>% mutate(dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
 View(hchartdatos)
 
 #highcharter
