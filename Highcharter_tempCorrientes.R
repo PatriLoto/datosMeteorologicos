@@ -24,16 +24,19 @@ estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>% filte
   mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
   rename(Fecha = fecha)
 View(estaciones_meteo2)
-#elimino nulos
-#estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))  #filter(pais=='Argentina')
 
-#selecciono datos de Argentina del año 2011
-mapaA2011 <- estaciones_meteo2%>% filter((year(Fecha)== 2011) & !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, Fecha, nombre)
-View(mapaA2011)
+#selecciono datos de Corrientes Capital
+datosCorrientes<- estaciones_meteo2%>% filter((year(Fecha)== 2011) & (nombre=='CORRIENTES AERO') & !is.na(t_max) & !is.na(t_min))%>%
+                mutate(dia=day(Fecha))%>% select(lat, lon,t_max, t_min, media, Fecha,dia, nombre)
+View(datosCorrientes)
+
+#temp. mínima y máxima para definir valores del eje y
+extremoInferior <- min(datosCorrientes$t_min)   # -0.4
+extremoSuperior <- max(datosCorrientes$t_max)   # 40.7
 
 #Datos
-hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, Fecha, nombre)%>% mutate(dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
-View(hchartdatos)
+#hchartdatos <- mapaA2011 %>% select(t_min, t_max, media, Fecha, nombre)%>% mutate(dia=day(fechaGrafico))%>%filter(nombre=='CORRIENTES AERO')
+#View(hchartdatos)
 
 #highcharter
 x <- c("Día","T.Min.", "T.Media", "T.Máx.")
@@ -42,7 +45,7 @@ tltip <- tooltip_table(x, y)
 
 #opción 1: theme monokai
 #------------------------
-graficoMono <-hchart(hchartdatos, type = "columnrange",
+graficoMono <-hchart(datosCorrientes, type = "columnrange",
                   hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
   hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0, 45.0),
            gridLineColor = "orange",               #B71C1C
@@ -66,7 +69,7 @@ y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
 tltip <- tooltip_table(x, y)
 
 
-grafico2 <-hchart(hchartdatos, type = "columnrange",
+grafico2 <-hchart(datosCorrientes, type = "columnrange",
                  hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
   hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0, 45.0),
            #gridLineColor = "orange",              
@@ -91,7 +94,7 @@ y <- sprintf("{point.%s}", c("dia","t_min", "media", "t_max"))
 tltip <- tooltip_table(x, y)
 
 
-grafico3 <-hchart(hchartdatos, type = "columnrange",
+grafico3 <-hchart(datosCorrientes, type = "columnrange",
                   hcaes(x = Fecha, low = t_min, high = t_max, color = media)) %>% 
   hc_yAxis(tickPositions = c(-5, 0, 5.0, 10.0,15.0,20.0,25.0,30.0,35.0,40.0, 45.0),
            gridLineColor = "orange",               #B71C1C
