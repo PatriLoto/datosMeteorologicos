@@ -20,17 +20,17 @@ porAnio <-meteo%>% mutate(anio=year(fecha))%>%View
 estaciones_meteo <-meteo %>% inner_join(estaciones, by= 'id_estacion')
 View(estaciones_meteo)
 
-estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>%
-mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
-  rename(fechaGrafico = fecha)
+estaciones_meteo2 <- select(estaciones_meteo, -elevacion, -institucion)%>% filter(pais=='Argentina')%>%
+  mutate(fecha = as.Date(fecha), media= ((t_max+t_min)/2)) %>%
+  rename(Fecha = fecha)
 View(estaciones_meteo2)
 #elimino nulos
-estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
+#estacionesSinNA <-estaciones_meteo2 %>%filter (!is.na(t_max) & !is.na(t_min))
 
 #selecciono datos de Argentina del año 2011
-mapaA2011 <- estacionesSinNA%>% filter(pais=='Argentina'& (year(fechaGrafico)== 2011)& !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, fechaGrafico, nombre)
+mapaA2011 <- estaciones_meteo2%>% filter((year(Fecha)== 2011) & !is.na(t_max) & !is.na(t_min))%>% select(lat, lon,t_max, t_min, media, Fecha, nombre)
 View(mapaA2011)
-
+#-------------------------------------------
 Paraheatmap <- mapaA2011 %>% select(t_max, fechaGrafico)%>% mutate(mes=month(mapaA2011$fechaGrafico))
 View(Paraheatmap)
 Paraheatmap2 <- Paraheatmap %>% summarize(prom=mean(t_max))%>% group_by(Paraheatmap$mes)
@@ -380,5 +380,4 @@ hc <- highchart(type = "stock") %>%
 
 hc
        
-  
 #####################################################################
